@@ -74,6 +74,11 @@ int runs;
 double half_time;
 
 
+Matrix<double, 3, 3> Mag_correction{
+  {1.535, 0.094, 0.032},
+  {0.035, 1.565, 0.021},
+  {-0.08, 0.042, 1.639}
+};
 //attitude filter matrices
 Matrix<double, 4, 4> Ag{
   {0, 0, 0, 0},
@@ -223,10 +228,15 @@ void rocket::calibrate(int N){
 
 void rocket::update(double time_interval){
 
-  mag_raw(0) = -magnetometer.Bx(mag_offset(0));  
-  mag_raw(1) = -magnetometer.By(mag_offset(1));  
+  mag_raw(0) = magnetometer.Bx(mag_offset(0));  
+  mag_raw(1) = magnetometer.By(mag_offset(1));  
   mag_raw(2) = magnetometer.Bz(mag_offset(2));  
 
+  mag_raw = Mag_correction*mag_raw;
+
+  mag_raw(0) = -mag_raw(0);
+  mag_raw(1) = -mag_raw(1);
+  
   B_total = sqrt(sq(mag_raw(0)) + sq(mag_raw(1)) + sq(mag_raw(2)));
 
   acc_raw(1) = sensor.xl_y(offset_y);
@@ -286,9 +296,9 @@ void rocket::update(double time_interval){
   if ((sq(pitch)<1) && (sq(roll)<1)) { //stops computer from trying to take asin of numbers greater than 1
     pitch = asin(pitch);
     roll = asin(roll);
-    //y_adj = ((mag_raw(1)/B_total)*cos(roll)) + ((mag_raw(0)/B_total)*sin(roll));
-    //z_adj = -((mag_raw(2)/B_total)*cos(pitch)) + ((mag_raw(1)/B_total)*sin(roll)*sin(pitch)) - ((mag_raw(0)/B_total)*cos(roll)*sin(pitch));
-    yaw = atan2(mag_raw(1),mag_raw(2));
+    y_adj = ((mag_raw(1))*cos(roll)) - (mag_raw(0)*sin(roll));
+    z_adj = ((mag_raw(2))*cos(pitch)) - ((mag_raw(1))*sin(roll)*sin(pitch)) + ((mag_raw(0))*cos(roll)*sin(pitch));
+    yaw = atan2(y_adj,z_adj);
     sin_phi = sin(roll/2);
     cos_phi = cos(roll/2);
     sin_theta = sin(pitch/2);
