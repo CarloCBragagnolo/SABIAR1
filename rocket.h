@@ -33,6 +33,8 @@ class rocket
 
     double altitude; //raw barometer altitude reading (m)
 
+    Matrix<double,3,3> Mag_correction;
+
     Vector3d mag_offset; //zero gauss reading of magnetometers
 
     Vector3d mag_raw; //raw magnetometer reading(gauss)

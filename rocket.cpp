@@ -74,11 +74,6 @@ int runs;
 double half_time;
 
 
-Matrix<double, 3, 3> Mag_correction{
-  {1.535, 0.094, 0.032},
-  {0.035, 1.565, 0.021},
-  {-0.08, 0.042, 1.639}
-};
 //attitude filter matrices
 Matrix<double, 4, 4> Ag{
   {0, 0, 0, 0},
@@ -194,6 +189,9 @@ void rocket::begin(){
   mag_offset(0) = 0;
   mag_offset(1) = 0;
   mag_offset(2) = 0;
+  Mag_correction(0,0) = 1;
+  Mag_correction(1,1) = 1;
+  Mag_correction(2,2) = 1;
 
 }
 
@@ -235,9 +233,8 @@ void rocket::update(double time_interval){
   mag_raw = Mag_correction*mag_raw;
 
   mag_raw(0) = -mag_raw(0);
-  mag_raw(1) = -mag_raw(1);
+  mag_raw(1) = -mag_raw(1); //adjust to same coords as rest of vehicle
   
-  B_total = sqrt(sq(mag_raw(0)) + sq(mag_raw(1)) + sq(mag_raw(2)));
 
   acc_raw(1) = sensor.xl_y(offset_y);
   acc_raw(2) = sensor.xl_z(offset_z);
