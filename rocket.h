@@ -45,6 +45,7 @@ class rocket
 
     Vector3d euler_attitude;  //attitude in more readable euler angles.
 
+    bool orientation;
 
     bool detect_apogee();
 

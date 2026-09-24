@@ -18,9 +18,9 @@ Adafruit_BMP280 bmp(6);
 
 
 
-double B_total;
 double y_adj;
 double z_adj;
+
 //sensor offsets
 double offset_x;
 double offset_y;
@@ -159,6 +159,8 @@ Matrix<double,3, 3> Pp;
 Matrix<double,3, 3> P0 = A;
 
 
+
+
 void rocket::begin(){
   
   magnetometer.begin();
@@ -235,6 +237,12 @@ void rocket::update(double time_interval){
   mag_raw(0) = -mag_raw(0);
   mag_raw(1) = -mag_raw(1); //adjust to same coords as rest of vehicle
   
+  if (mag_raw(0) <= 0){
+    orientation = 1; //up
+  }
+  else{
+    orientation = 0; //down
+  } 
 
   acc_raw(1) = sensor.xl_y(offset_y);
   acc_raw(2) = sensor.xl_z(offset_z);
@@ -288,11 +296,26 @@ void rocket::update(double time_interval){
 
   //note yaw is not updated yet, will include when magnetometer is available.
   pitch = (zlpf/g);
-  roll = (-ylpf/(g*cos(pitch))); //intermediate step of calculation, allows us to check if acceleration value is valid
+  roll = (-ylpf/(g*abs(cos(pitch)))); //intermediate step of calculation, allows us to check if acceleration value is valid
 
   if ((sq(pitch)<1) && (sq(roll)<1)) { //stops computer from trying to take asin of numbers greater than 1
     pitch = asin(pitch);
+    if(pitch<0 && orientation == 0){ //upside down, negative pitch direction
+      pitch = - (std::numbers::pi+pitch);
+    }
+    else if(pitch>0 && orientation == 0){//upside down, positive pitch direction
+      pitch = (std::numbers::pi-pitch);
+    } 
+
     roll = asin(roll);
+
+    if(roll<0 && orientation == 0){ //upside down, negative roll direction
+      roll = - (std::numbers::pi+roll);
+    }
+    else if(roll>0 && orientation == 0){//upside down, positive roll direction
+      roll = (std::numbers::pi-roll);
+    }
+
     y_adj = ((mag_raw(1))*cos(roll)) - (mag_raw(0)*sin(roll));
     z_adj = ((mag_raw(2))*cos(pitch)) - ((mag_raw(1))*sin(roll)*sin(pitch)) + ((mag_raw(0))*cos(roll)*sin(pitch));
     yaw = atan2(y_adj,z_adj);
@@ -319,10 +342,30 @@ void rocket::update(double time_interval){
   */
   yaw = atan2(2*(vg(1)*vg(2)+vg(0)*vg(3)),(sq(vg(0))+sq(vg(1))-sq(vg(2))-sq(vg(3)))); //back to euler angles
   pitch = asin(-2*((vg(1)*vg(3)) - vg(0)*vg(2)));
+
+  if(pitch<0 && orientation == 0){ //upside down, negative pitch direction
+      pitch = - (std::numbers::pi+pitch);
+    }
+    else if(pitch>0 && orientation == 0){//upside down, positive pitch direction
+      pitch = (std::numbers::pi-pitch);
+    } 
+
   roll = atan2(2*(vg(2)*vg(3)+vg(0)*vg(1)),(sq(vg(0))-sq(vg(1))-sq(vg(2))+sq(vg(3))));
+  if(roll<0 && orientation == 0){ //upside down, negative roll direction
+      roll = (std::numbers::pi+roll);
+    }
+    else if(roll>0 && orientation == 0){//upside down, positive roll direction
+      roll = -(std::numbers::pi-roll);
+    }
+
+
   cos_incl = cos(roll)*cos(pitch);
 
   forwardness = cos_incl; //cosine of angle from vertical
+
+  if (orientation==0){ 
+    forwardness = -forwardness;
+  }
 
   euler_attitude(0) = (yaw*180)/std::numbers::pi; //saving stuff to euler vector in deg/sec
   euler_attitude(1) = (pitch*180)/std::numbers::pi;
@@ -333,8 +376,8 @@ void rocket::update(double time_interval){
 
   // first, get the vertical accel.
   acc_raw(0) = sensor.xl_x(offset_x); // raw x acceleration
-  if ((!isnan(cos_incl)) && (cos_incl != 0)){ //if the attitude filter breaks, we ignore it and assume vertical flight
-    vert_accel = cos_incl*(acc_raw(0) - (g*cos_incl)); // corrects x-axis acceleration to vertical
+  if ((!isnan(forwardness)) && (forwardness != 0)){ //if the attitude filter breaks, we ignore it and assume vertical flight
+    vert_accel = forwardness*(acc_raw(0) - (g*forwardness)); // corrects x-axis acceleration to vertical
 
     /* ***EXPERIMENTAL*** this uses the kalman velocity and acceleration, projects it to vertical then to y and z to 
     get estimates of 3d position.
