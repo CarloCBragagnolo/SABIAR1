@@ -294,9 +294,9 @@ void rocket::update(double time_interval){
   
   Kg = Ppg*Htg*((Hg*Ppg*Htg + Rg).inverse()); //gain calc.
 
-  //note yaw is not updated yet, will include when magnetometer is available.
+  roll = (-ylpf/(g*abs(cos(pitch)))); 
   pitch = (zlpf/g);
-  roll = (-ylpf/(g*abs(cos(pitch)))); //intermediate step of calculation, allows us to check if acceleration value is valid
+  //intermediate step of calculation, allows us to check if acceleration value is valid
 
   if ((sq(pitch)<1) && (sq(roll)<1)) { //stops computer from trying to take asin of numbers greater than 1
     pitch = asin(pitch);
@@ -308,13 +308,12 @@ void rocket::update(double time_interval){
     } 
 
     roll = asin(roll);
-
-    if(roll<0 && orientation == 0){ //upside down, negative roll direction
+    if(roll<0 && orientation == 0){ //upside down, negative pitch direction
       roll = - (std::numbers::pi+roll);
     }
-    else if(roll>0 && orientation == 0){//upside down, positive roll direction
+    else if(roll>0 && orientation == 0){//upside down, positive pitch direction
       roll = (std::numbers::pi-roll);
-    }
+    } 
 
     y_adj = ((mag_raw(1))*cos(roll)) - (mag_raw(0)*sin(roll));
     z_adj = ((mag_raw(2))*cos(pitch)) - ((mag_raw(1))*sin(roll)*sin(pitch)) + ((mag_raw(0))*cos(roll)*sin(pitch));
@@ -351,21 +350,14 @@ void rocket::update(double time_interval){
     } 
 
   roll = atan2(2*(vg(2)*vg(3)+vg(0)*vg(1)),(sq(vg(0))-sq(vg(1))-sq(vg(2))+sq(vg(3))));
-  if(roll<0 && orientation == 0){ //upside down, negative roll direction
-      roll = (std::numbers::pi+roll);
-    }
-    else if(roll>0 && orientation == 0){//upside down, positive roll direction
-      roll = -(std::numbers::pi-roll);
-    }
 
 
   cos_incl = cos(roll)*cos(pitch);
 
   forwardness = cos_incl; //cosine of angle from vertical
 
-  if (orientation==0){ 
-    forwardness = -forwardness;
-  }
+
+  
 
   euler_attitude(0) = (yaw*180)/std::numbers::pi; //saving stuff to euler vector in deg/sec
   euler_attitude(1) = (pitch*180)/std::numbers::pi;
