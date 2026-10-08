@@ -1,3 +1,5 @@
+
+
 # SABIAR1
 <img width="400" height="300" alt="20260918_120404" src="https://github.com/user-attachments/assets/5e4ad0b1-d53e-4866-8e66-b6348d720492" />
 <img width="400" height="300" alt="20260918_120417" src="https://github.com/user-attachments/assets/9683019d-1334-497a-8caf-af61324176c7" />
@@ -9,5 +11,6 @@ first, in the BOM file attached, one of the current limiting/voltage divider res
 
 ## UPDATE 08/10/2026
 
-I have replaced the faulty resistors with the correct valued ones, and this validated the continuity testing, both at the GPIO pin and the LED. Further, the pyros were tested and shown to work, melting through a thin copper wire at 150ms firing time, drawing a estimated 3 amps.
+I have replaced the faulty resistors with the correct valued ones, and this validated the continuity testing, both at the GPIO pin and the LED. Further, the pyros were tested and shown to work, melting through a thin copper wire at 150ms firing time, drawing a estimated 3 amps. No tests have been conducted on a live pyro charge.
 
+Regarding flight software, the attitude kalman filter has been updated to use the magnetometer for up-down facing disambiguation, allowing for accurate logging throughout the flight envelope. Also, the magnetometer can now take both soft and hard iron calibration. The relevant paremeters were calculated using MagMaster.
