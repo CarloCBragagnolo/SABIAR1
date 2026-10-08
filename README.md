@@ -1,6 +1,6 @@
 # SABIAR1
-<img width="4000" height="3000" alt="20260918_120404" src="https://github.com/user-attachments/assets/5e4ad0b1-d53e-4866-8e66-b6348d720492" />
-<img width="4000" height="3000" alt="20260918_120417" src="https://github.com/user-attachments/assets/9683019d-1334-497a-8caf-af61324176c7" />
+<img width="800" height="600" alt="20260918_120404" src="https://github.com/user-attachments/assets/5e4ad0b1-d53e-4866-8e66-b6348d720492" />
+<img width="800" height="600" alt="20260918_120417" src="https://github.com/user-attachments/assets/9683019d-1334-497a-8caf-af61324176c7" />
 
 Project files for the Sabiá R1 flight computer
 
