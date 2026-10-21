@@ -371,12 +371,18 @@ void rocket::update(double time_interval){
   if ((!isnan(forwardness)) && (forwardness != 0)){ //if the attitude filter breaks, we ignore it and assume vertical flight
     vert_accel = forwardness*(acc_raw(0) - (g*forwardness)); // corrects x-axis acceleration to vertical
 
-    /* ***EXPERIMENTAL*** this uses the kalman velocity and acceleration, projects it to vertical then to y and z to 
+    /* ***EXPERIMENTAL*** this uses the kalman velocity and acceleration, projects it to  then to y and z to 
     get estimates of 3d position.
     */
     yz_raw = (((state_vector(2))*sq(time_interval) * 0.5) + (state_vector(1) * time_interval))/cos_incl; //prelim step to save time
-    yz_state(0) += yz_raw*sin(roll); //y postion
-    yz_state(1) += yz_raw*sin(pitch); //z position
+    yz_state(0) += yz_raw*(sin(roll)*cos(yaw) + sin(yaw)*sin(pitch));//y postion (west)
+    if(pitch > 0){
+      yz_state(1) += yz_raw*(-sin(pitch)*cos(yaw) + sin(yaw)*sin(roll)); //z position (north)
+    } 
+    else{
+      yz_state(1) += yz_raw*(-sin(pitch)*cos(yaw) + sin(yaw)*sin(roll));
+    }
+    
    
   }
   else{
