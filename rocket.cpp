@@ -376,12 +376,8 @@ void rocket::update(double time_interval){
     */
     yz_raw = (((state_vector(2))*sq(time_interval) * 0.5) + (state_vector(1) * time_interval))/cos_incl; //prelim step to save time
     yz_state(0) += yz_raw*(sin(roll)*cos(yaw) + sin(yaw)*sin(pitch));//y postion (west)
-    if(pitch > 0){
-      yz_state(1) += yz_raw*(-sin(pitch)*cos(yaw) + sin(yaw)*sin(roll)); //z position (north)
-    } 
-    else{
-      yz_state(1) += yz_raw*(-sin(pitch)*cos(yaw) + sin(yaw)*sin(roll));
-    }
+    yz_state(1) += yz_raw*(-sin(pitch)*cos(yaw) + sin(yaw)*sin(roll)); //z position (north)
+
     
    
   }
