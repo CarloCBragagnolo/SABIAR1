@@ -32,8 +32,11 @@ double offset_gz;
 
 //barometric altitude
 double alt_buffer=0;
-double alt_v_lpf = 0;
-double alt_v_buffer = 0;
+double alt_v = 0;
+double alt_0 = 0;
+int current_run = 0;
+bool first_run = true;
+double time_buffer = 0;
 
 //acceleration stuff
 double vert_accel;
@@ -324,7 +327,7 @@ void rocket::update(double time_interval){
     cos_theta = cos(pitch/2);
     sin_psi = sin(yaw/2);
     cos_psi = cos(yaw/2);
-    zg(0) = sin_phi*sin_theta*sin_psi + cos_phi*cos_theta*cos_psi; //weird quarternon stuff i dont understand
+    zg(0) = sin_phi*sin_theta*sin_psi + cos_phi*cos_theta*cos_psi; //weird quarternion stuff i dont understand
     zg(1) = sin_phi*cos_theta*cos_psi - cos_phi*sin_theta*sin_psi;
     zg(2) = cos_phi*sin_theta*cos_psi + sin_phi*cos_theta*sin_psi;
     zg(3) = cos_phi*cos_theta*sin_psi - sin_phi*sin_theta*cos_psi;
@@ -378,7 +381,6 @@ void rocket::update(double time_interval){
     yz_state(0) += yz_raw*(sin(roll)*cos(yaw) + sin(yaw)*sin(pitch));//y postion (west)
     yz_state(1) += yz_raw*(-sin(pitch)*cos(yaw) + sin(yaw)*sin(roll)); //z position (north)
 
-    
    
   }
   else{
@@ -433,14 +435,28 @@ bool rocket::detect_liftoff(){
   }
 }
 
-double rocket::barometric_velocity(double time_interval){
+double rocket::barometric_velocity(double time_interval, double readings){
 
+  if(first_run == true){
+    alt_0 = altitude;
+    first_run = false;
+  }
   //low pass filter to get rid of discrete nature of barometer
+  if (current_run >= readings){
+    alt_v = ((alt_buffer/readings) - alt_0)/(time_buffer); //average velo
+    alt_0 = alt_buffer/readings;
 
-  alt_v_lpf = alt_v_buffer*0.95 + (0.05)*((altitude - alt_buffer)/time_interval); /*crazy agressive lpf, delayed but doesnt matter
-   since this is just for landing detection*/
-  alt_v_buffer = alt_v_lpf;
-  alt_buffer = altitude;
-  return alt_v_lpf;
+    alt_buffer = 0;
+    time_buffer = 0;
+    current_run = 0;
+  }
+  else{
+    alt_buffer += altitude;
+    current_run += 1;
+    time_buffer += time_interval;
+  }
+ 
+ 
+  return alt_v;
 }
 

@@ -57,7 +57,7 @@ class rocket
     void update(double time_interval = 0.001); /*reads sensors and updates state and attitude. must pass interval since last reading. must always be run
     in any active flight state, as this reads all data, filters it and makes it available as the above defined parameters*/
 
-    double barometric_velocity(double time_interval = 0.001); /*uses stored barometer
+    double barometric_velocity(double time_interval = 0.001, double readings = 100); /*uses stored barometer
     reading and calculates current barometric velocity. mainly for landing detection, where filter is ureliable. must run update first.*/
  
     void calibrate(int N = 100); //zeroes sensors, must be as close to vertical as possible. must be run after begin in setup.
