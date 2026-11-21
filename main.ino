@@ -70,7 +70,7 @@ void loop() {
     t0 = micros(); //millis not acc enough
     vehicle.update(deltat);
     Serial.println(String(vehicle.state_vector(0),4) + "," + String(vehicle.state_vector(1),4) + "," + String(vehicle.state_vector(2),4) + ","  + String(vehicle.forwardness, 4) + ", " + String(sqrt(vehicle.state_covariance(0,0))));
-    //Serial.println(String(vehicle.barometric_velocity(deltat),4) + "," + String((deltat),6) + "," + String(vehicle.altitude));
+    //Serial.println(String(vehicle.barometric_velocity(deltat,100),4) + "," + String((deltat),6) + "," + String(vehicle.altitude));
     //Serial.println(String(vehicle.euler_attitude(0), 4) + "," + String(vehicle.euler_attitude(1), 4) + "," + String(vehicle.euler_attitude(2), 4) + ","  + String(vehicle.forwardness, 4));
     //Serial.println(String(vehicle.yz_state(0), 4) + "," + String(vehicle.yz_state(1), 4));
     //Serial.println(vehicle.orientation);
