@@ -441,7 +441,7 @@ double rocket::barometric_velocity(double time_interval, double readings){
     alt_0 = altitude;
     first_run = false;
   }
-  //low pass filter to get rid of discrete nature of barometer
+
   if (current_run >= readings){
     alt_v = ((alt_buffer/readings) - alt_0)/(time_buffer); //average velo
     alt_0 = alt_buffer/readings;
